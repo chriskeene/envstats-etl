@@ -1,11 +1,11 @@
 """this script grabs the latest version of the average fuel sales statistics and adds them to db"""
 import warnings
 #import datetime as dt
+from sqlite3 import connect
 import pandas as pd
 import openpyxl
 from bs4 import BeautifulSoup
 import requests
-
 
 # this script grabs the latest version of the average fuel sales statistics
 # and adds them to db
@@ -57,21 +57,27 @@ def transform_avg_fuel_sales(df):
     df3["Date"] = pd.to_datetime(df3["Date"])
     df3 = df3[df3["Date"].dt.year != 2020]
     df3["year"] = df3["Date"].dt.year
-    print(df3.head(10))
-    print(df3.tail(10))
+    #print(df3.head(10))
+    #print(df3.tail(10))
     #new df without the UK col, ie the orig data, too noisey
     df4 = df3.drop(['United Kingdom'],axis=1)
+    return df4
 
+def load_avg_fuel_sales(df4):
+    # create a database and connect to it
+    conn = connect("envstats1.db")
+    curr = conn.cursor()
 
 def main():
     """ETL avg fuel sales from gov.uk website"""
     # extract_avg_fuel_sales()
     # this stops a warning message being show
-    #warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
+    warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
     df = pd.read_excel(
         "avg_fuel_sales.xlsx", sheet_name=8, skiprows=6, header=1, usecols="A,C,Q"
     )
-    transform_avg_fuel_sales(df)
+    df4 = transform_avg_fuel_sales(df)
+    load_avg_fuel_sales(df4)
 
 
 if __name__ == "__main__":
