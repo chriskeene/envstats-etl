@@ -1,7 +1,8 @@
 """this script grabs the latest version of the average fuel sales statistics and adds them to db"""
 import warnings
 #import datetime as dt
-from sqlite3 import connect
+#from sqlite3 import connect
+import sqlalchemy
 import pandas as pd
 import openpyxl
 from bs4 import BeautifulSoup
@@ -65,8 +66,11 @@ def transform_avg_fuel_sales(df):
 
 def load_avg_fuel_sales(df4):
     # create a database and connect to it
-    conn = connect("envstats1.db")
-    curr = conn.cursor()
+    #conn = connect("envstats1.db")
+    #curr = conn.cursor()
+    db = sqlalchemy.create_engine('sqlite:///envstats1.db')
+    df4.to_sql('avgfuelsales', db, if_exists="replace")
+
 
 def main():
     """ETL avg fuel sales from gov.uk website"""
